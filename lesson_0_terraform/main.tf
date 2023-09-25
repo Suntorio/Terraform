@@ -65,7 +65,6 @@ resource "aws_instance" "test_powerfull" {
   }
 }
 
-
 output "web-address_test_instance" {
   value = aws_instance.test.public_dns
 }
