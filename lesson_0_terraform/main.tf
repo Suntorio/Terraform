@@ -65,16 +65,16 @@ resource "aws_instance" "test_powerfull" {
   }
 }
 
-output "web-address_test_instance" {
-  value = aws_instance.test.public_dns
-}
-output "web-address_test_instance" {
-  value = aws_instance.test.public_ip
-}
+# output "web-address_test_instance" {
+#   value = aws_instance.test.public_dns
+# }
+# output "web-address_test_instance" {
+#   value = aws_instance.test.public_ip
+# }
 
-output "web-address_ansible_instance" {
-  value = aws_instance.ansible_on_ubuntu.public_dns
-}
+# output "web-address_ansible_instance" {
+#   value = aws_instance.ansible_on_ubuntu.public_dns
+# }
 
 data "aws_caller_identity" "current" {}
 
