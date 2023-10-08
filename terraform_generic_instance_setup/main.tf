@@ -9,11 +9,11 @@ terraform {
       version = "~>3.5"
     }
   }
-  # backend "s3" {
-  #   bucket     = "put your bucket name here"
-  #   key        = "terraform_my_infra.tfstate"
-  #   region     = "us-east-1"
-  # }
+  backend "s3" {
+    bucket    = "terraform-state-test-my-cloud-aleks"
+    key       = "terraform_my_infra.tfstate"
+    region    = "us-east-1"
+  }
   required_version = ">= 1.3"
 }
 provider "aws" {
