@@ -1,6 +1,0 @@
-.terraform*
-terraform.*
-variables.tf
-*variables.tf
-hosts.yml
-#lesson_0_terraform/variables.tf
