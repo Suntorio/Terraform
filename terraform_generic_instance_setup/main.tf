@@ -9,14 +9,15 @@ terraform {
       version = "~>3.5"
     }
   }
+  # backend "s3" {
+  #   bucket     = "put your bucket name here"
+  #   key        = "terraform_my_infra.tfstate"
+  #   region     = "us-east-1"
+  # }
   required_version = ">= 1.3"
 }
-
-
 provider "aws" {
   region     = "us-east-1"
-  access_key = var.key_id
-  secret_key = var.key_value
 }
 
 #resource "tls_private_key" "test_key" {
@@ -48,31 +49,21 @@ resource "aws_security_group" "web-sg" {
 }
 
 resource "aws_instance" "test" {
-  ami                    = "ami-053b0d53c279acc90" #Ubuntu
-  instance_type          = "t3.micro"
+  ami                    = "ami-053b0d53c279acc90" // Ubuntu server 22.04
+  instance_type          = "t2.micro" //instance type
   vpc_security_group_ids = [aws_security_group.web-sg.id]
-  key_name               = "lesson_7_ansible"
+  # key_name               = "put your key name here"
   tags = {
-    Name = "Test insta_Lesson_TF_Ansible"
+    Name = "Test insta_Lesson_1_TF"
   }
 }
 
-#resource "aws_instance" "test_powerfull" {
-#  ami                    = "ami-053b0d53c279acc90" #Ubuntu
-#  instance_type          = "c6a.large"
-#  vpc_security_group_ids = [aws_security_group.web-sg.id]
-#  key_name               = "lesson_7_ansible"
-#  tags = {
-#    Name = "Test insta_Lesson_TF_Ansible"
-#  }
-#}
-
-output "web-address_test_instance" {
+output "web-address_test_instance_public_dns" {
   value = aws_instance.test.public_dns
 }
-#output "web-address_test_instance_powerfull" {
-#  value = aws_instance.test_powerfull.public_dns
-#}
+output "web-address_test_instance_public_ip" {
+  value = aws_instance.test.public_ip
+}
 
 data "aws_caller_identity" "current" {}
 
@@ -82,4 +73,15 @@ output "account_id" {
 
 output "caller_arn" {
   value = data.aws_caller_identity.current.arn
+}
+
+output "caller_user" {
+  value = data.aws_caller_identity.current.user_id
+}
+resource "null_resource" "generate_inventory" {
+  depends_on = [aws_instance.test]
+
+  provisioner "local-exec" {
+    command = "./generate_inventory.sh"
+  }
 }

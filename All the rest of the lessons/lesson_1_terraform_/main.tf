@@ -13,8 +13,6 @@ terraform {
 }
 provider "aws" {
   region     = "us-east-1"
-  access_key = PUT_YOURKEY_ID_HERE
-  secret_key = PUT_YOUR_KEY_VALUE_HERE
 }
 
 #resource "tls_private_key" "test_key" {
@@ -32,8 +30,8 @@ resource "random_pet" "sg" {}
 resource "aws_security_group" "web-sg" {
   name = "${random_pet.sg.id}-sg"
   ingress {
-    from_port   = 0
-    to_port     = 65000
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -46,35 +44,42 @@ resource "aws_security_group" "web-sg" {
 }
 
 resource "aws_instance" "test" {
-  ami                    = "ami-0715c1897453cabd1" // OS Ubuntu 20.04
+  ami                    = "ami-0715c1897453cabd1" // AWS Linux
   instance_type          = "t2.micro" //instance type
   vpc_security_group_ids = [aws_security_group.web-sg.id]
-  key_name               = "lesson_7_ansible"
+  # key_name               = "put your key name here"
+  user_data = <<-EOF
+              #!/bin/bash
+# Update package information
+sudo apt update -y
+# Install Apache
+sudo apt install apache2 -y
+# Set ownership of /var/www directory to www-data
+sudo chown -R www-data:www-data /var/www
+# Allow incoming traffic on Apache port (usually 80)
+sudo ufw allow 'Apache'
+# Restart Apache service
+sudo service apache2 restart
+# Fetch your IP address
+myip=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
+# Create an HTML file with the IP address
+echo "<h2>Web server with IP: $myip</h2><br>" | sudo tee /var/www/html/index.html
+# Start the Apache service (assuming you meant Apache, not httpd)
+sudo service apache2 start
+# Enable Apache to start on boot
+sudo systemctl enable apache2
+              EOF
   tags = {
-    Name = "Test insta_Lesson_TF_Ansible"
+    Name = "Test insta_Lesson_1_TF"
   }
 }
 
-resource "aws_instance" "test_powerfull" {
-  ami                    = "ami-0715c1897453cabd1"
-  instance_type          = "c6a.large"
-  vpc_security_group_ids = [aws_security_group.web-sg.id]
-  key_name               = "lesson_7_ansible"
-  tags = {
-    Name = "Test insta_Lesson_TF_Ansible"
-  }
+output "web-address_test_instance_public_dns" {
+  value = aws_instance.test.public_dns
 }
-
-# output "web-address_test_instance" {
-#   value = aws_instance.test.public_dns
-# }
-# output "web-address_test_instance" {
-#   value = aws_instance.test.public_ip
-# }
-
-# output "web-address_ansible_instance" {
-#   value = aws_instance.ansible_on_ubuntu.public_dns
-# }
+output "web-address_test_instance_public_ip" {
+  value = aws_instance.test.public_ip
+}
 
 data "aws_caller_identity" "current" {}
 
