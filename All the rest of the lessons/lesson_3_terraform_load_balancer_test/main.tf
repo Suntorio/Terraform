@@ -15,8 +15,8 @@ terraform {
 
 provider "aws" {
   region     = "us-east-1"
-  access_key = var.key_id
-  secret_key = var.key_value
+  #access_key = var.key_id
+  #secret_key = var.key_value
 }
 
 #resource "tls_private_key" "test_key" {
